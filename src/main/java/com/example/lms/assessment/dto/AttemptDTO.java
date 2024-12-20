@@ -43,6 +43,6 @@ public class AttemptDTO {
 
     public void setAttemptTime(long attemptTime) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        this.attemptTime = sdf.format(new Date(attemptTime)); // Format the long timestamp to a string
+        this.attemptTime = sdf.format(new Date(attemptTime));
     }
 }

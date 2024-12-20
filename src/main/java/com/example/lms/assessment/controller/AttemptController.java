@@ -41,8 +41,9 @@ public class AttemptController {
             return ResponseEntity.status(400).body("The number of answers does not match the number of questions.");
         }
 
-        attemptService.submitAttempt(studentId, quizId, attemptDTO);
-        return ResponseEntity.status(201).body("Quiz attempt submitted successfully!");
+        int score = attemptService.submitAttempt(studentId, quizId, attemptDTO);
+
+        return ResponseEntity.status(201).body("Quiz attempt submitted successfully!\n\nYour Score is: " + score);
     }
 
 

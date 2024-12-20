@@ -20,7 +20,7 @@ public class AttemptService {
     @Autowired
     private QuestionService questionService;
 
-    public void submitAttempt(String studentId, String quizId, AttemptDTO attemptDTO) {
+    public Integer submitAttempt(String studentId, String quizId, AttemptDTO attemptDTO) {
         Attempt attempt = new Attempt();
         attempt.setStudentId(studentId);
         attempt.setQuizId(quizId);
@@ -31,8 +31,8 @@ public class AttemptService {
         List<String> correctAnswers = questionService.getCorrectAnswersByQuiz(quizId);
         int score = calculateScore(answers, correctAnswers);
         attempt.setScore(score);
-
         attemptRepository.save(attempt);
+        return attempt.getScore();
     }
 
     public AttemptDTO getAttemptResult(String studentId, String quizId, String attemptId) {

@@ -26,6 +26,9 @@ public class Question {
     @Column(name = "correct_answer")
     private Boolean correctAnswer;
 
+    @Column(name = "Short_answer")
+    private String shortAnswer;
+
     @ElementCollection
     @CollectionTable(name = "choices", joinColumns = @JoinColumn(name = "question_id"))
     @Column(name = "choice")
@@ -37,7 +40,7 @@ public class Question {
     public Question() {}
 
     public Question(String courseId, String quizId, String questionText, String questionType, Boolean correctAnswer,
-                    List<String> choices, Integer correctChoiceIndex) {
+                    List<String> choices, Integer correctChoiceIndex, String shortAnswer) {
         this.courseId = courseId;
         this.quizId = quizId;
         this.questionText = questionText;
@@ -45,6 +48,7 @@ public class Question {
         this.correctAnswer = correctAnswer;
         this.choices = choices;
         this.correctChoiceIndex = correctChoiceIndex;
+        this.shortAnswer = shortAnswer;
     }
 
 
@@ -110,5 +114,13 @@ public class Question {
 
     public void setCorrectChoiceIndex(Integer correctChoiceIndex) {
         this.correctChoiceIndex = correctChoiceIndex;
+    }
+
+    public String getShortAnswer() {
+        return shortAnswer;
+    }
+
+    public void setShortAnswer(String shortAnswer) {
+        this.shortAnswer = shortAnswer;
     }
 }

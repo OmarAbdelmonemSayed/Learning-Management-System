@@ -7,6 +7,7 @@ import com.example.lms.assessment.repository.QuizRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,7 +30,8 @@ public class QuestionService {
                 questionDTO.getQuestionType(),
                 questionDTO.getCorrectAnswer(),
                 questionDTO.getChoices(),
-                questionDTO.getCorrectChoiceIndex()
+                questionDTO.getCorrectChoiceIndex(),
+                questionDTO.getShortAnswer()
         );
         questionRepository.save(question);
     }
@@ -46,7 +48,8 @@ public class QuestionService {
                     question.get().getQuestionType(),
                     question.get().getCorrectAnswer(),
                     question.get().getChoices(),
-                    question.get().getCorrectChoiceIndex()
+                    question.get().getCorrectChoiceIndex(),
+                    question.get().getShortAnswer()
             );
         } else {
             throw new IllegalArgumentException("Question not found with the given quizId and questionId.");
@@ -67,21 +70,34 @@ public class QuestionService {
         } else if (question.getQuestionType().equals("MCQ")) {
             return question.getChoices().get(question.getCorrectChoiceIndex());
         }
+        else if (question.getQuestionType().equals("Short Answer")){
+            return question.getShortAnswer();
+        }
         return "";
     }
 
     public List<QuestionDTO> getAllQuestionsByQuiz(String courseId, String quizId) {
         List<Question> questions = questionRepository.findByQuizIdAndCourseId(quizId, courseId);
-        return questions.stream().map(question -> new QuestionDTO(
-                question.getId(),
-                question.getCourseId(),
-                question.getQuizId(),
-                question.getQuestionText(),
-                question.getQuestionType(),
-                question.getCorrectAnswer(),
-                question.getChoices(),
-                question.getCorrectChoiceIndex()
-        )).collect(Collectors.toList());
+
+//        Collections.shuffle(questions); // randomize the questions order everytime try to get the questions
+
+
+        return questions.stream()
+                .map(question -> {
+                    QuestionDTO dto = new QuestionDTO();
+                    dto.setId(question.getId());
+                    dto.setCourseId(question.getCourseId());
+                    dto.setQuizId(question.getQuizId());
+                    dto.setQuestionText(question.getQuestionText());
+                    dto.setQuestionType(question.getQuestionType());
+                    dto.setId(question.getId());
+
+                    if ("MCQ".equals(question.getQuestionType())) {
+                        dto.setChoices(question.getChoices());
+                    }
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
     public void updateQuestion(String questionId, QuestionDTO questionDTO) {
