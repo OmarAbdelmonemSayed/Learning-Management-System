@@ -9,3 +9,4 @@ import java.util.List;
 public interface AssignmentRepository extends JpaRepository<Assignment, String> {
     List<Assignment> findByCourseId(String courseId);
 }
+

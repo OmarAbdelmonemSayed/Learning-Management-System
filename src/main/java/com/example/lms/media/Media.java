@@ -22,7 +22,7 @@ public class Media {
     private String filename; // Name of the file stored in the media folder
 
     @Column(nullable = false)
-    private String fileType; // MIME type of the file (e.g., "video/mp4", "image/png")
+    private String fileType; // Type of the file
 
     @Column(nullable = false)
     private String filePath; // Full path to the stored file

@@ -33,11 +33,9 @@ public class MediaService {
     public Media uploadMedia(String lessonId, MultipartFile file, String instructorId) throws IOException {
     	validateInstructor(instructorId);
     	
-    	// Validate lesson
         Lesson lesson = lessonRepository.findById(lessonId)
         				.orElseThrow(() -> new RuntimeException("Lesson not found"));
 
-        // Create the media folder if it doesn't exist
         File folder = new File(mediaFolder);
         if (!folder.exists()) {
             boolean created = folder.mkdirs();
@@ -46,24 +44,19 @@ public class MediaService {
             }
         }
 
-        // Prepare the filename and destination path
         String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
         Path destinationPath = Paths.get(folder.getAbsolutePath(), filename);
 
         try {
-            // Copy the file to the destination folder
             try (InputStream inputStream = file.getInputStream()) {
                 Files.copy(inputStream, destinationPath);
             }
-            // Log success message
             System.out.println("File uploaded to: " + destinationPath.toString());
         } catch (IOException e) {
-            // Log the exception details for troubleshooting
-            e.printStackTrace();  // For debugging purposes
+            e.printStackTrace();
             throw new IOException("Failed to copy file: " + e.getMessage(), e);
         }
 
-        // Save media details in the database
         Media media = Media.builder()
                 .filename(filename)
                 .fileType(file.getContentType())
@@ -78,6 +71,22 @@ public class MediaService {
         Lesson lesson = lessonRepository.findById(lessonId)
                 		.orElseThrow(() -> new RuntimeException("Lesson not found"));
         return lesson.getMediaList();
+    }
+    
+    public Media getMediaById(String mediaId) {
+        return mediaRepository.findById(mediaId)
+                .orElseThrow(() -> new RuntimeException("Media not found"));
+    }
+
+    public byte[] getMediaContent(String mediaId) throws IOException {
+        Media media = getMediaById(mediaId);
+
+        Path path = Paths.get(media.getFilePath());
+        if (!Files.exists(path)) {
+            throw new RuntimeException("Media file not found on the server");
+        }
+
+        return Files.readAllBytes(path);
     }
     
     private void validateInstructor(String instructorId) {

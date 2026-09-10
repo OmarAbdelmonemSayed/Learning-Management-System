@@ -1,8 +1,8 @@
 package com.example.lms.Notifications.NotificationCreator;
 
+import com.example.lms.common.enums.UserRole;
 import com.example.lms.Notifications.NotificationsManager.NotificationData;
 import com.example.lms.Notifications.Enums.NotificationType;
-import com.example.lms.Notifications.Enums.UserRole;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,13 +11,14 @@ public class EnrollmentCreator extends NotificationCreator {
     private String enrolledStudentID;
     private String courseInstructorID;
 
-    public EnrollmentCreator(String receiverID, String courseName, String enrolledStudentID, String courseInstructorID) {
+    public EnrollmentCreator(String receiverID, String courseName, String courseInstructorID) {
         super(receiverID, courseName);
         this.enrolledStudentID = enrolledStudentID;
         this.courseInstructorID = courseInstructorID;
     }
 
-    public List<NotificationData> createNewEnrollmentNotification() {
+    public List<NotificationData> createNewEnrollmentNotification(String loggedInUserID) {
+        enrolledStudentID = loggedInUserID;
         String messageToInstructor = "A new student with ID: " + enrolledStudentID + " has enrolled in your course " + courseName + "\n";
         NotificationData notificationData1 = new NotificationData(NotificationType.NEW_ENROLLMENT, UserRole.INSTRUCTOR, courseInstructorID, messageToInstructor, createdAt);
 

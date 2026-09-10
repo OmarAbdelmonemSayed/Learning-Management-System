@@ -30,11 +30,11 @@ public class Notification {
     private static final AtomicLong counter = new AtomicLong();
 
 
-    public Notification(NotificationData notificationData, String dateFormatted, boolean b) {
+    public Notification(NotificationData notificationData, String dateFormatted, boolean isRead) {
         this.notificationID = String.valueOf(counter.incrementAndGet());
         this.notificationData = notificationData;
         this.createdAt_formatted = dateFormatted;
-        this.isRead = b;
+        this.isRead = isRead;
     }
 
 }

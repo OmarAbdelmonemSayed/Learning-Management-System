@@ -48,6 +48,23 @@ public class MediaController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+    
+    @GetMapping("/{mediaId}/view")
+    @RolesAllowed({"STUDENT", "INSTRUCTOR"})
+    public ResponseEntity<?> viewMedia(@PathVariable String mediaId) {
+        try {
+            byte[] mediaContent = mediaService.getMediaContent(mediaId);
+            Media media = mediaService.getMediaById(mediaId);
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_TYPE, media.getFileType())
+                    .body(mediaContent);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (IOException e) {
+            return new ResponseEntity<>("Failed to load media: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     private String getInstructorIdFromToken(HttpServletRequest request) {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);

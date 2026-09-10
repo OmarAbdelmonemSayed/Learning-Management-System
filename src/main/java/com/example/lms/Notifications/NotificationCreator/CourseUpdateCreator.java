@@ -2,7 +2,7 @@ package com.example.lms.Notifications.NotificationCreator;
 
 import com.example.lms.Notifications.NotificationsManager.NotificationData;
 import com.example.lms.Notifications.Enums.NotificationType;
-import com.example.lms.Notifications.Enums.UserRole;
+import com.example.lms.common.enums.UserRole;
 
 public class CourseUpdateCreator extends NotificationCreator {
 

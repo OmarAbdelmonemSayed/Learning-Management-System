@@ -1,7 +1,10 @@
 package com.example.lms.course;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.lms.common.enums.UserRole;
 import com.example.lms.lesson.Lesson;
@@ -29,6 +32,7 @@ public class CourseService {
                 course.setStudents(null);
                 course.setInstructor(null);
                 course.getLessons().forEach(lesson -> lesson.setOtp(null));
+                course.getLessons().forEach(lesson -> lesson.setStudentsAttended(null));
             });
         }
         return courses;
@@ -53,6 +57,7 @@ public class CourseService {
                 course.setStudents(null);
                 course.setInstructor(null);
                 course.getLessons().forEach(lesson -> lesson.setOtp(null));
+                course.getLessons().forEach(lesson -> lesson.setStudentsAttended(null));
             });
         } 
         
@@ -72,7 +77,6 @@ public class CourseService {
             throw new RuntimeException("Only students can enroll in courses.");
         }
         
-        // Check if the student is already enrolled
         if (course.getStudents().contains(student)) {
             throw new RuntimeException("Student is already enrolled in this course.");
         }
@@ -96,8 +100,8 @@ public class CourseService {
     public Course createCourse(CourseDto courseDto, String userId) {
     	User instructor = validateUser(userId);
         
-        if (!instructor.getRole().equals(UserRole.INSTRUCTOR)) {
-            throw new RuntimeException("Only instructors can create courses.");
+    	if (!instructor.getRole().equals(UserRole.INSTRUCTOR)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only instructors can create courses.");
         }
 
         Course course = new Course();
@@ -115,11 +119,11 @@ public class CourseService {
     public void addLesson(String courseId, Lesson lessonRequest, String userId) {
     	User instructor = validateUser(userId);
         
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+    	Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
 
         if (!course.getInstructor().equals(instructor)) {
-            throw new RuntimeException("Unauthorized access");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized access");
         }
 
         Lesson lesson = new Lesson();
@@ -131,90 +135,111 @@ public class CourseService {
         courseRepository.save(course);
     }
     
+    public Course getCourseById(String courseId, String userId) {
+        User user = validateUser(userId);
+        
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        if (user.getRole().equals(UserRole.STUDENT)) {
+            course.setInstructor(null);
+            course.setStudents(null);
+            course.getLessons().forEach(lesson -> lesson.setOtp(null));
+            course.getLessons().forEach(lesson -> lesson.setStudentsAttended(null));
+        }
+        return course;
+    }
+    
+    public void deleteCourse(String courseId, String userId) {
+        User user = validateUser(userId);
+
+        Course course = courseRepository.findById(courseId)
+                		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
+
+        if (!course.getInstructor().equals(user) && !user.getRole().equals(UserRole.ADMIN)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized access");
+        }
+
+        courseRepository.delete(course);
+    }
+
+    
     private User validateUser(String userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
     
     // For performance
     public int getDaysAttendedByStudent(String courseId, String studentId) {
-        // Validate the student
         User student = validateUser(studentId);
         if (!student.getRole().equals(UserRole.STUDENT)) {
             throw new RuntimeException("Only students can have attendance checked.");
         }
 
-        // Validate the course
         Course course = courseRepository.findById(courseId)
                 		.orElseThrow(() -> new RuntimeException("Course not found"));
 
-        // Verify if the student is enrolled in the course
         if (!course.getStudents().contains(student)) {
             throw new RuntimeException("Student is not enrolled in the course.");
         }
 
-        // Count the number of times the student attended lessons in the course
         long attendanceCount = course.getLessons().stream()
-                .filter(lesson -> lesson.getStudentsAttended().contains(student)) // Filter lessons attended by the student
+                .filter(lesson -> lesson.getStudentsAttended().contains(student))
                 .count();
 
-        return (int) attendanceCount; // Return the total attendance count as an integer
+        return (int) attendanceCount;
     }
     
     public int getDaysAbsentByStudent(String courseId, String studentId) {
-        // Validate the student
         User student = validateUser(studentId);
         if (!student.getRole().equals(UserRole.STUDENT)) {
             throw new RuntimeException("Only students can have attendance checked.");
         }
 
-        // Validate the course
         Course course = courseRepository.findById(courseId)
                 		.orElseThrow(() -> new RuntimeException("Course not found"));
 
-        // Verify if the student is enrolled in the course
         if (!course.getStudents().contains(student)) {
             throw new RuntimeException("Student is not enrolled in the course.");
         }
 
-        // Calculate the total number of lessons in the course
         long totalLessons = course.getLessons().size();
 
-        // Count the number of lessons the student attended
         long attendedLessons = course.getLessons().stream()
-                .filter(lesson -> lesson.getStudentsAttended().contains(student)) // Filter lessons attended by the student
+                .filter(lesson -> lesson.getStudentsAttended().contains(student))
                 .count();
 
-        // Calculate the number of lessons the student was absent
         long absentLessons = totalLessons - attendedLessons;
 
-        return (int) absentLessons; // Return the total absence count as an integer
+        return (int) absentLessons;
     }
 
     public double getAttendancePercentage(String courseId, String studentId) {
-        // Validate the student
         User student = validateUser(studentId);
         if (!student.getRole().equals(UserRole.STUDENT)) {
             throw new RuntimeException("Only students can have attendance checked.");
         }
 
-        // Validate the course
         Course course = courseRepository.findById(courseId)
                 		.orElseThrow(() -> new RuntimeException("Course not found"));
 
-        // Verify if the student is enrolled in the course
         if (!course.getStudents().contains(student)) {
             throw new RuntimeException("Student is not enrolled in the course.");
         }
 
-        // Calculate the total number of lessons in the course
         long totalLessons = course.getLessons().size();
 
-        // Count the number of lessons the student attended
         long attendedLessons = course.getLessons().stream()
-                .filter(lesson -> lesson.getStudentsAttended().contains(student)) // Filter lessons attended by the student
+                .filter(lesson -> lesson.getStudentsAttended().contains(student))
                 .count();
 
         return (double) attendedLessons / totalLessons * 100;
+    }
+    
+    // for quizzes
+    public Course getCourseById(String courseId) {
+        Course course = courseRepository.findById(courseId)
+        				.orElseThrow(() -> new RuntimeException("Course not found"));
+        return course;
     }
 }

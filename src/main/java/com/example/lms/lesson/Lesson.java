@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,9 @@ public class Lesson {
 
     @Column
     private String otp; // Field for OTP generation
+    
+    @Column
+    private LocalDateTime otpExpirationTime; // Expiration time for OTP
 
     // Many-to-One: Many lessons belong to a single course
     @JsonIgnore

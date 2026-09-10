@@ -27,7 +27,7 @@ public class OTPService {
         return otp.toString();
     }
 
-    OTP generateOTP(String courseID, String lessonID) {
+    public OTP generateOTP(String courseID, String lessonID) {
         OTP candidate = otpRepository.findByCourseIDAndLessonID(courseID, lessonID).orElse(null);
         if (candidate != null)
         {
@@ -40,11 +40,11 @@ public class OTPService {
         return generated;
     }
 
-    OTP getOTP(String courseID, String lessonID) {
+    public OTP getOTP(String courseID, String lessonID) {
         return otpRepository.findByCourseIDAndLessonID(courseID, lessonID).orElse(null);
     }
 
-    boolean verifyOTP(String courseID, String lessonID, String otpFormat) {
+    public boolean verifyOTP(String courseID, String lessonID, String otpFormat) {
         OTP validOTP = otpRepository.findByCourseIDAndLessonID(courseID, lessonID).orElse(null);
         LocalDateTime now = LocalDateTime.now();
         if (validOTP == null || !otpFormat.equals(validOTP.getFormat()) || now.isAfter(validOTP.getExpirationTime()))

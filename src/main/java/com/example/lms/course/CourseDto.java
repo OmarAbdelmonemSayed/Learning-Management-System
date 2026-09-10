@@ -1,8 +1,10 @@
 package com.example.lms.course;
 
-import lombok.Data;
+import lombok.*;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CourseDto {
     private String title;
     private String description;

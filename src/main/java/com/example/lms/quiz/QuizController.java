@@ -54,7 +54,7 @@ public class QuizController {
         return ResponseEntity.ok(quizService.getQuizForInstructor(courseId, quizId, userId));
     }
 
-    @RolesAllowed({"Student"})
+    @RolesAllowed({"STUDENT"})
     @GetMapping("/{quizId}/students")
     public ResponseEntity<?> getQuizForStudent(@PathVariable String courseId, @PathVariable String quizId, HttpServletRequest request) {
 
@@ -64,7 +64,7 @@ public class QuizController {
     }
 
 
-    @RolesAllowed({"Student"})
+    @RolesAllowed({"STUDENT"})
     @PostMapping("/{quizId}/students/{studentId}")
     public ResponseEntity<?> startQuizForStudent(@PathVariable String courseId, @PathVariable String quizId, @PathVariable String studentId,
                                                  @RequestBody QuizAttemptDTO attemptDTO,

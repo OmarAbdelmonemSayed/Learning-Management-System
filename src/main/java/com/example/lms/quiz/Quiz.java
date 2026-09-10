@@ -33,9 +33,4 @@ public class Quiz {
             inverseJoinColumns = @JoinColumn(name = "question_id")
     )
     private List<Question> questions;
-
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "course_id", nullable = false)
-    private Course course;
 }

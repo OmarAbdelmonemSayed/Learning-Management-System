@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -99,5 +100,15 @@ public class QuizAttemptService {
         results.setScore(quizAttempt.get().getScore());
         results.setAttemptTime(quizAttempt.get().getAttemptTime());
         return results;
+    }
+
+
+    public List<QuizAttempt> getQuizzesSubmittedByStudent(String studentId, String courseId) {
+        return quizAttemptRepository.findQuizAttemptsByStudentIdAndCourseId(studentId, courseId);
+    }
+
+
+    public double getQuizzesGradeByStudent(String studentId, String courseId) {
+        return quizAttemptRepository.findQuizAttemptsByStudentIdAndCourseId(studentId, courseId).stream().mapToDouble(QuizAttempt::getScore).sum();
     }
 }
